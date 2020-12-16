@@ -1,0 +1,73 @@
+**GetFileUnitTest.cs**
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+namespace GetFileUnitTest
+{
+    [TestClass]
+    public class GetFileUnitTest
+    {
+        [TestMethod]
+        public void TestMethod_WhenCsv_ReturnedInvalid()
+        {   //Arrange
+            string input4 = "csv";
+
+            //Act
+            string output4 = GetFileFromDirectory.GetFileClas.GetFile(input4);
+
+            //Assert
+            Assert.AreEqual("Invalid Input", output4);
+        }
+        [TestMethod]
+        public void TestMethod_WhenJson_ReturnedJson()
+        {
+            //Arrange
+            string input2 = "json";
+            //Act
+            string output2 = GetFileFromDirectory.GetFileClas.GetFile(input2);
+
+            //Assert
+            Assert.AreEqual("json", output2);
+        }
+        [TestMethod]
+        public void TestMethod_WhenEmpty_ReturnedInvalid()
+        {
+            //Arrange
+            string input3 = " ";
+
+            //Act
+            string output3 = GetFileFromDirectory.GetFileClas.GetFile(input3);
+
+            //Assert
+            Assert.AreEqual("invalid input", output3);
+        }
+        [TestMethod]
+        public void TestMethod_WhenYaml_ReturnedYaml()
+        {
+            //Arrange
+            string input = "yaml";
+            //Act
+            string output = GetFileFromDirectory.GetFileClas.GetFile(input);
+            //Assert
+            Assert.AreEqual("yaml", output);
+        }
+    }
+}
+
+***GetFileClass.cs***
+
+using System;
+
+namespace GetFileFromDirectory
+{
+    public class GetFileClass
+    {
+        public static string GetFile(string input) 
+        {
+            if (input == "yaml" || input == "json")
+            {
+                return input;
+            }
+            else return "invalid input";
+        }
+    }
+}

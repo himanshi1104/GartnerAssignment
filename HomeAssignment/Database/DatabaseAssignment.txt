@@ -1,0 +1,84 @@
+PLease use SQL Server for queries instead of MYSQL as syntax is different.
+
+1. Select users whose id is either 3,2 or 4
+- Please return at least: all user fields
+
+SELECT *
+   FROM [testtest22].[dbo].[users] where id in (3,2,4);
+
+2. Count how many basic and premium listings each active user has
+- Please return at least: first_name, last_name, basic, premium
+
+SELECT [testtest22].[dbo].[users].[first_name], [testtest22].[dbo].[users].[last_name], 
+ COUNT(case when [testtest22].[dbo].[listings].status=2 then 1 end) as basic,
+ COUNT(case when [testtest22].[dbo].[listings].status=3 then 1 end) as premium
+from [testtest22].[dbo].[users]
+inner join [testtest22].[dbo].[listings] 
+on [testtest22].[dbo].[listings].[USER_ID]=[testtest22].[dbo].[users].[id] 
+where [testtest22].[dbo].[users].[status]=2  
+group by [testtest22].[dbo].[users].[first_name], [testtest22].[dbo].[users].[last_name] 
+
+3. Show the same count as before but only if they have at least ONE premium listing
+- Please return at least: first_name, last_name, basic, premium
+
+SELECT [testtest22].[dbo].[users].[first_name], [testtest22].[dbo].[users].[last_name], 
+ COUNT(case when [testtest22].[dbo].[listings].status=2 then 1 end) as basic,
+ COUNT(case when [testtest22].[dbo].[listings].status=3 then 1 end) as premium
+from [testtest22].[dbo].[users]
+inner join [testtest22].[dbo].[listings] 
+on [testtest22].[dbo].[listings].[USER_ID]=[testtest22].[dbo].[users].[id] 
+where [testtest22].[dbo].[users].[status]=2  
+group by [testtest22].[dbo].[users].[first_name], [testtest22].[dbo].[users].[last_name] 
+having COUNT(case when [testtest22].[dbo].[listings].status=3 then 1 end)>=1
+
+4. How much revenue has each active vendor made in 2013
+- Please return at least: first_name, last_name, currency, revenue
+
+SELECT [testtest22].[dbo].[users].[first_name]
+	  ,[testtest22].[dbo].[users].[last_name]
+      ,[price]
+      ,[currency]
+	  From(([testtest22].[dbo].[users] 
+	  inner join [testtest22].[dbo].[listings]
+	  on [testtest22].[dbo].[users].id=[testtest22].[dbo].[listings].user_id)
+	  Inner join [testtest22].[dbo].[clicks] on
+	  [testtest22].[dbo].[listings].id=[testtest22].[dbo].[clicks].listing_id
+	  ) where DATEPART(YEAR, [testtest22].[dbo].[clicks].created)=2013;
+
+5. Insert a new click for listing id 3, at $4.00
+- Find out the id of this new click. Please return at least: id
+
+insert into
+   [testtest22].[dbo].[clicks] values (3,4.00,'USD',GETDATE())
+SElect SCOPE_IDENTITY();
+
+6. Show listings that have not received a click in 2013
+- Please return at least: listing_name
+ 
+SELECT [listing_id],name     
+  FROM [testtest22].[dbo].[clicks] 
+  inner join [testtest22].[dbo].[listings]
+  on [testtest22].[dbo].[listings].id=[testtest22].[dbo].[clicks].listing_id  
+  Except 
+  SELECT [listing_id], name     
+  FROM [testtest22].[dbo].[clicks] 
+  inner join [testtest22].[dbo].[listings]
+  on [testtest22].[dbo].[listings].id=[testtest22].[dbo].[clicks].listing_id where DATEPART(YEAR, [testtest22].[dbo].[clicks].created)=2013;
+
+7. For each year show number of listings clicked and number of vendors who owned these listings
+- Please return at least: date, total_listings_clicked, total_vendors_affected
+
+SELECT count(distinct [testtest22].[dbo].[users].email) as  total_vendors_affected, Count([testtest22].[dbo].[clicks].listing_id)as total_listings_clicked, DATEPART(YEAR, [testtest22].[dbo].[clicks].created) as Date
+From(([testtest22].[dbo].[users] 
+	  inner join [testtest22].[dbo].[listings]
+	  on [testtest22].[dbo].[users].id=[testtest22].[dbo].[listings].user_id)
+	  Inner join [testtest22].[dbo].[clicks] on
+	  [testtest22].[dbo].[listings].id=[testtest22].[dbo].[clicks].listing_id
+	  ) group by DATEPART(YEAR, [testtest22].[dbo].[clicks].created)
+
+8. Return a comma separated string of listing names for all active vendors
+- Please return at least: first_name, last_name, listing_names
+
+SELECT [testtest22].[dbo].[users].First_name, [testtest22].[dbo].[users].last_name, STRING_AGG(name,', ') as listing_name from [testtest22].[dbo].[listings] 
+inner join [testtest22].[dbo].[users]
+on [testtest22].[dbo].[users].id=[testtest22].[dbo].[listings].user_id and [testtest22].[dbo].[users].status=2 group by [testtest22].[dbo].[users].First_name,  [testtest22].[dbo].[users].last_name ;

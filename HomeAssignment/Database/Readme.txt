@@ -1,0 +1,1 @@
+Please use Sql Server to run the queries instead of MySql as synatx is dfferent.
